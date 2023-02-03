@@ -6,12 +6,13 @@
 #include <cstdio>
 #include <string>
 #include <iostream>
+#include <format>
 
 using namespace std;
 
 static CSimpleIni ini;
 
-DWORD GetProcessIdByName(wchar_t* name) {
+DWORD GetProcessIdByName(wchar_t *name) {
 	PROCESSENTRY32 entry;
 	entry.dwSize = sizeof(PROCESSENTRY32);
 
@@ -30,7 +31,7 @@ DWORD GetProcessIdByName(wchar_t* name) {
 	return 0;
 }
 
-HANDLE CreateYuanShenProc(){
+HANDLE CreateYuanShenProc() {
 	auto YSPath = ini.GetValue(c2w("Inject"), c2w("GenshinPath"));
 	if (YSPath == nullptr) ini.GetValue(c2w("GenshinImpact"), c2w("Path"));
 	if (YSPath == nullptr) {
@@ -48,19 +49,19 @@ HANDLE CreateYuanShenProc(){
 	si.cb = sizeof(si);
 	ZeroMemory(&pi, sizeof(pi));
 
-	if (!CreateProcess(NULL, const_cast<wchar_t*>(YSPath), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+	if (!CreateProcess(NULL, const_cast<wchar_t *>(YSPath), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
 		printf("Failed to create YuanShen process");
 		exit(-2);
 	}
 	return pi.hProcess;
 }
 
-int main(int argc, wchar_t* argv[]) {
+int main(int argc, wchar_t *argv[]) {
 	ini.SetUnicode();
 	ini.LoadFile("cfg.ini");
-	
-	
-	if (!ReleaseLibrary(IDR_DLL1, "Dll", "C:\\Windows\\Temp\\DebuggerBypass.dll")) {
+	char *tempDir = getenv("TEMP");
+
+	if (!ReleaseLibrary(IDR_DLL1, "Dll", format("{}\\DebuggerBypass.dll", tempDir).c_str())) {
 		printf("Failed to release dll\n");
 		system("pause");
 		return -3;
@@ -89,21 +90,21 @@ int main(int argc, wchar_t* argv[]) {
 	}
 
 	printf("[INFO] YuanShen process handle: %p\n", hProc);
-	InjectDll(hProc, c2w("C:\\Windows\\Temp\\DebuggerBypass.dll"));
+	InjectDll(hProc, c2w(format("{}\\DebuggerBypass.dll", c2w(tempDir)).c_str()));
 
-#ifdef _DEBUG
+	#ifdef _DEBUG
 	printf("Wait 10 seconds for YuanShen init...\n");
 	Sleep(10000);
-#else
+	#else
 	printf("Wait 30 seconds for YuanShen init...\n");
 	Sleep(30000);
-#endif
+	#endif
 
 	while (true) {
 		system("cls");
 
 		char dllPathC[256];
-		wchar_t* dllPathW;
+		wchar_t *dllPathW;
 
 		printf("Input dlls path you want to inject below:\n");
 		cin.getline(dllPathC, 256);
@@ -114,7 +115,7 @@ int main(int argc, wchar_t* argv[]) {
 		#else	
 		if (InjectDll(hProc, dllPathW)) Sleep(5000);
 		#endif	
-		
+
 
 		fflush(stdin);
 	}

@@ -1,1 +1,1 @@
-BOOL ReleaseLibrary(UINT uResourceId, CHAR* szResourceType, CHAR* szFileName);
+BOOL ReleaseLibrary(UINT uResourceId, CHAR *szResourceType, const char *szFileName);

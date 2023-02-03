@@ -10,7 +10,7 @@ using namespace std;
 
 typedef VOID(*Func)(VOID);
 
-BOOL ReleaseLibrary(UINT uResourceId, CHAR* szResourceType, CHAR* szFileName)
+BOOL ReleaseLibrary(UINT uResourceId, CHAR *szResourceType, const char *szFileName)
 {
 	// ÕÒµ½×ÊÔ´
 	HRSRC hRsrc = FindResource(NULL, MAKEINTRESOURCE(uResourceId), c2w(szResourceType));
